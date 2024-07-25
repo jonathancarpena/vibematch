@@ -1,15 +1,42 @@
 'use client'
+import { useEffect } from 'react'
+import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
+import ENDPOINTS from '@/lib/endpoints'
 
 export default function Home() {
-    async function getUser() {
-        const BASE = process.env.NEXT_PUBLIC_BASE_URL
-        const response = await fetch(`${BASE}/api/me`)
-        const data = await response.json()
-    }
+    const query = useSearchParams()
+    const router = useRouter()
+
+    useEffect(() => {
+        const code = query.get('code')
+
+        if (code) {
+            const userLogin = async () => {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(code),
+                })
+                const { ok } = await res.json()
+            }
+            userLogin()
+        }
+    }, [query, router])
     return (
-        <main className="flex min-h-screen flex-col items-center justify-between p-24">
-            <h1>Hello World</h1>
-            <button onClick={getUser}>Click Me</button>
+        <main className="">
+            <h1>Tune Tracker</h1>
+            <SpotifyLoginButton />
         </main>
+    )
+}
+
+function SpotifyLoginButton() {
+    return (
+        <Link href={ENDPOINTS.login} className="">
+            <button className="">Login</button>
+        </Link>
     )
 }

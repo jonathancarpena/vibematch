@@ -177,28 +177,5 @@ export interface PlayHistory {
     }
 }
 
-export interface CurrentlyPlaying {
-    device: {
-        id: string
-        is_active: boolean
-        is_private_session: boolean
-        name: string
-        type: 'computer' | 'smartphone' | 'speaker'
-    }
-    context?: {
-        type: string
-        href: string
-        external_urls: {
-            spotify: string
-        }
-        uri: string
-    }
-    timestamp: number
-    progress_ms?: number
-    is_playing: boolean
-    item: SpotifyTrack | SpotifyEpisode
-    currently_playing_type: 'track' | 'episode' | 'ad' | 'unknown'
-}
-
 export type TabOptions = 'tracks' | 'artists' | 'genre' | 'playlist'
 export type TimeRanges = 'shortTerm' | 'mediumTerm' | 'longTerm'
