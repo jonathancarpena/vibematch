@@ -38,8 +38,8 @@ export const createUser = async (req, res) => {
                 profile: profile.data,
                 tracks: tracks.data,
                 artists: artists.data,
-
                 genres,
+                timestamp: new Date(),
             },
             error: fetchErrors,
         }
@@ -312,7 +312,7 @@ export const createUser = async (req, res) => {
             tracks: data.tracks,
             artists: data.artists,
             genres: data.genres,
-            timestamp: new Date(),
+            timestamp: data.timestamp,
         })
 
         const existingUser = await User.findOne({ spotifyId: data.profile.id })
@@ -322,7 +322,7 @@ export const createUser = async (req, res) => {
             existingUser.tracks = data.tracks
             existingUser.artists = data.artists
             existingUser.genres = data.genres
-            existingUser.timestamp = new Date()
+            existingUser.timestamp = data.timestamp
             await existingUser.save()
         } else {
             await newUser.save()

@@ -1,13 +1,18 @@
 import ENDPOINTS from '@/lib/endpoints'
 import { redirect } from 'next/navigation'
 import { TopTracks, TopArtists, UserProfile, TopGenre } from '@/lib/types'
+import Navbar from '@/components/Layout/Navbar'
+import Container from '@/components/Layout/Container'
 
 interface DataResponse {
-    tracks: TopTracks
-    artists: TopArtists
-    genres: TopGenre
-    profile: UserProfile
-    timestamp: Date
+    data: {
+        tracks: TopTracks
+        artists: TopArtists
+        genres: TopGenre
+        profile: UserProfile
+        timestamp: Date
+    }
+    error: string
 }
 
 interface Props {
@@ -35,11 +40,34 @@ async function getData(code: string): Promise<DataResponse> {
 }
 
 export default async function Home({ searchParams }: Props) {
-    const data = await getData(searchParams.code)
+    const {
+        data: { profile, tracks, genres, artists },
+    } = await getData(searchParams.code)
 
     return (
-        <main className="">
-            <h1>CALLBACK</h1>
-        </main>
+        <>
+            <Navbar />
+            <Container>
+                {/* User Profile */}
+                <section className="text-black ">
+                    <h1>{profile.display_name}</h1>
+                </section>
+
+                {/* Genres */}
+                <section className="text-black ">
+                    <h1>Top Genres</h1>
+                </section>
+
+                {/* Tracks */}
+                <section className="text-black ">
+                    <h1>{profile.display_name}</h1>
+                </section>
+
+                {/* Artists */}
+                <section className="text-black ">
+                    <h1>{profile.display_name}</h1>
+                </section>
+            </Container>
+        </>
     )
 }
