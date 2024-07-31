@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
         })
         const BASE = process.env.NEXT_PUBLIC_BACKEND_BASE_URL
-        console.log(`${BASE}/users`)
 
         const res = await fetch(`${BASE}/users`, {
             method: 'POST',
@@ -18,7 +17,9 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({ code }),
         })
 
-        return NextResponse.json({ ok: true })
+        const data = await res.json()
+
+        return NextResponse.json({ data, ok: true })
     } else {
         return NextResponse.json({ ok: false })
     }

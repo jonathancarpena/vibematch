@@ -4,11 +4,10 @@ import ENDPOINTS from '../lib/endpoints.js'
 export const getUsers = async (req, res) => {}
 
 export const createUser = async (req, res) => {
-    console.log('create USER ')
-    let code = req.body.code
+    let code = await req.body.code
     const clientId = process.env.CLIENT_ID || ''
     const clientSecret = process.env.CLIENT_SECRET || ''
-    const redirectURI = `${process.env.CLIENT_BASE_URL}/`
+    const redirectURI = `${process.env.CLIENT_BASE_URL}/callback/`
 
     async function fetchData() {
         let fetchErrors = null
@@ -18,6 +17,7 @@ export const createUser = async (req, res) => {
             clientSecret,
             redirectURI
         )
+
         const { access_token } = await getRefreshAccessToken(
             refresh_token,
             clientId,
@@ -27,20 +27,18 @@ export const createUser = async (req, res) => {
         const profile = await fetchProfile(access_token)
         const tracks = await fetchTopTracks(access_token)
         const artists = await fetchTopArtists(access_token)
-        const recentlyPlayed = await fetchRecentlyPlayed(access_token)
         const genres = fetchTopGenresByArtist(artists.data)
 
         fetchErrors = profile.error
         fetchErrors = tracks.error
         fetchErrors = artists.error
-        fetchErrors = recentlyPlayed.error
 
         return {
             data: {
                 profile: profile.data,
                 tracks: tracks.data,
                 artists: artists.data,
-                recentlyPlayed: recentlyPlayed.data,
+
                 genres,
             },
             error: fetchErrors,
@@ -110,6 +108,16 @@ export const createUser = async (req, res) => {
             }
         }
 
+        function filterTrackResponse(tracks) {
+            return tracks.map((item) => ({
+                artists: item.artists,
+                image: item.album.images[0],
+                id: item.id,
+                name: item.name,
+                popularity: item.popularity,
+            }))
+        }
+
         async function fetchShortTerm() {
             const result = await fetch(ENDPOINTS.tracks.shortTerm, headers)
             return await result.json()
@@ -129,19 +137,19 @@ export const createUser = async (req, res) => {
         if (shortTerm.hasOwnProperty('error')) {
             return { data, error: shortTerm.error.status }
         }
-        addToResponse('shortTerm', shortTerm.items)
+        addToResponse('shortTerm', filterTrackResponse(shortTerm.items))
 
         const mediumTerm = await fetchMediumTerm()
         if (mediumTerm.hasOwnProperty('error')) {
             return { data, error: mediumTerm.error.status }
         }
-        addToResponse('mediumTerm', mediumTerm.items)
+        addToResponse('mediumTerm', filterTrackResponse(mediumTerm.items))
 
         const longTerm = await fetchLongTerm()
         if (longTerm.hasOwnProperty('error')) {
             return { data, error: longTerm.error.status }
         }
-        addToResponse('longTerm', longTerm.items)
+        addToResponse('longTerm', filterTrackResponse(longTerm.items))
 
         return { data, error }
     }
@@ -160,6 +168,16 @@ export const createUser = async (req, res) => {
                 ...data,
                 [key]: result,
             }
+        }
+
+        function filterArtistResponse(artists) {
+            return artists.map((item) => ({
+                genres: item.genres,
+                id: item.id,
+                image: item.images[0],
+                name: item.name,
+                popularity: item.popularity,
+            }))
         }
 
         async function fetchShortTerm() {
@@ -181,40 +199,20 @@ export const createUser = async (req, res) => {
         if (shortTerm.hasOwnProperty('error')) {
             return { data, error: shortTerm.error.status }
         }
-        addToResponse('shortTerm', shortTerm.items)
+        addToResponse('shortTerm', filterArtistResponse(shortTerm.items))
 
         const mediumTerm = await fetchMediumTerm()
         if (mediumTerm.hasOwnProperty('error')) {
             return { data, error: mediumTerm.error.status }
         }
-        addToResponse('mediumTerm', mediumTerm.items)
+        addToResponse('mediumTerm', filterArtistResponse(mediumTerm.items))
 
         const longTerm = await fetchLongTerm()
         if (longTerm.hasOwnProperty('error')) {
             return { data, error: longTerm.error.status }
         }
-        addToResponse('longTerm', longTerm.items)
+        addToResponse('longTerm', filterArtistResponse(longTerm.items))
 
-        return { data, error }
-    }
-
-    async function fetchRecentlyPlayed(token) {
-        const headers = {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${token}` },
-        }
-
-        let data = []
-        let error = null
-
-        const response = await (
-            await fetch(ENDPOINTS.player.recentlyPlayed, headers)
-        ).json()
-
-        if (response.hasOwnProperty('error')) {
-            return { data, error: response.error.status }
-        }
-        data = response.items
         return { data, error }
     }
 
@@ -301,36 +299,37 @@ export const createUser = async (req, res) => {
         }
     }
 
-    const { data, error } = await fetchData()
-    console.log(error)
-    // try {
-    //     // const savedUser = await newUser.save()
-    //     console.log('BACKEND ')
-    //     res.status(201).json(savedUser)
-    // } catch (error) {
-    //     res.status(400).json({ message: error.message })
-    // }
+    try {
+        const { data, error } = await fetchData()
 
-    // const {
-    //     spotifyId,
-    //     displayName,
-    //     email,
-    //     favoriteTracks,
-    //     favoriteArtists,
-    //     favoriteGenres,
-    // } = req.body
-    // const newUser = new User({
-    //     spotifyId,
-    //     displayName,
-    //     email,
-    //     favoriteTracks,
-    //     favoriteArtists,
-    //     favoriteGenres,
-    // })
-    // try {
-    //     const savedUser = await newUser.save()
-    //     res.status(201).json(savedUser)
-    // } catch (error) {
-    //     res.status(400).json({ message: error.message })
-    // }
+        const newUser = new User({
+            spotifyId: data.profile.id,
+            profile: {
+                display_name: data.profile.display_name,
+                id: data.profile.id,
+                images: data.profile.images,
+            },
+            tracks: data.tracks,
+            artists: data.artists,
+            genres: data.genres,
+            timestamp: new Date(),
+        })
+
+        const existingUser = await User.findOne({ spotifyId: data.profile.id })
+
+        if (existingUser) {
+            existingUser.profile = data.profile
+            existingUser.tracks = data.tracks
+            existingUser.artists = data.artists
+            existingUser.genres = data.genres
+            existingUser.timestamp = new Date()
+            await existingUser.save()
+        } else {
+            await newUser.save()
+        }
+
+        res.status(201).json({ data, error })
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
 }
