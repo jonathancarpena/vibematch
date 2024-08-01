@@ -229,9 +229,6 @@ export const createUser = async (req, res) => {
                     const category = artist.genres[0]
                     counter['shortTerm'][category] =
                         (counter['shortTerm'][category] || 0) + 1
-                } else {
-                    counter['shortTerm']['undefined'] =
-                        (counter['shortTerm']['undefined'] || 0) + 1
                 }
             })
         }
@@ -240,11 +237,9 @@ export const createUser = async (req, res) => {
             artists.mediumTerm.forEach((artist) => {
                 if (artist.genres.length) {
                     const category = artist.genres[0]
+
                     counter['mediumTerm'][category] =
                         (counter['mediumTerm'][category] || 0) + 1
-                } else {
-                    counter['mediumTerm']['undefined'] =
-                        (counter['mediumTerm']['undefined'] || 0) + 1
                 }
             })
         }
@@ -253,11 +248,9 @@ export const createUser = async (req, res) => {
             artists.longTerm.forEach((artist) => {
                 if (artist.genres.length) {
                     const category = artist.genres[0]
+
                     counter['longTerm'][category] =
                         (counter['longTerm'][category] || 0) + 1
-                } else {
-                    counter['longTerm']['undefined'] =
-                        (counter['longTerm']['undefined'] || 0) + 1
                 }
             })
         }

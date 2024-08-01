@@ -36,7 +36,7 @@ export interface SpotifyTrack {
         }
         href: string
         id: string
-        images: Image[] | []
+        image: Image[] | []
         name: string
         release_date: string
         release_date_precision: string
@@ -56,6 +56,7 @@ export interface SpotifyTrack {
     }
     href: string
     id: string
+    image: Image
     is_playable: boolean
     linked_from: object
     restrictions: object
@@ -79,7 +80,7 @@ export interface SpotifyArtist {
     genres: string[]
     href: string
     id: string
-    images: Image[] | []
+    image: Image
     name: string
     popularity: number
     uri: string
@@ -179,3 +180,6 @@ export interface PlayHistory {
 
 export type TabOptions = 'tracks' | 'artists' | 'genre' | 'playlist'
 export type TimeRanges = 'shortTerm' | 'mediumTerm' | 'longTerm'
+export interface TimeRangePlaceholder {
+    [key: string]: string
+}
