@@ -6,6 +6,7 @@ import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import Image from 'next/image'
 import { Disc, Grid, ChevronLeft, ChevronRight } from 'react-feather'
+import Link from 'next/link'
 
 interface Props {
     artists: SpotifyArtist[] | []
@@ -113,9 +114,51 @@ function Artists({ artists, term }: Props) {
                             key={`${term}-${item.id}`}
                             className="max-w-44"
                         >
-                            <div className="w-full">
+                            <Link
+                                href={`https://open.spotify.com/artist/${item.id}`}
+                                target="_blank"
+                            >
+                                <div className="w-full">
+                                    {/* Art */}
+                                    <div className="mb-2 w-44 h-44 aspect-square overflow-hidden rounded-full relative bg-neutral-100 text-secondary flex justify-center items-center">
+                                        {item.image ? (
+                                            <Image
+                                                src={item.image.url}
+                                                alt={`${item.name}`}
+                                                fill
+                                                sizes={'176px'}
+                                                style={{
+                                                    objectFit: 'cover',
+                                                    objectPosition: 'center',
+                                                }}
+                                            />
+                                        ) : (
+                                            <Disc size={70} />
+                                        )}
+                                    </div>
+
+                                    {/* Name */}
+                                    <p className="font-bold text-center">
+                                        {index + 1}. {item.name}
+                                    </p>
+                                </div>
+                            </Link>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            ) : (
+                <ol className="flex flex-wrap justify-evenly md:justify-between w-full ">
+                    {artists.map((item, index) => (
+                        <li
+                            key={`grid-${term}-${item.id}`}
+                            className="w-44 mb-4"
+                        >
+                            <Link
+                                href={`https://open.spotify.com/artist/${item.id}`}
+                                target="_blank"
+                            >
                                 {/* Art */}
-                                <div className="mb-2 w-44 h-44 aspect-square overflow-hidden rounded-full relative bg-neutral-100 text-secondary flex justify-center items-center">
+                                <div className="mb-2 w-11/12 aspect-square rounded-full overflow-hidden relative bg-neutral-100 text-secondary flex justify-center items-center">
                                     {item.image ? (
                                         <Image
                                             src={item.image.url}
@@ -133,42 +176,10 @@ function Artists({ artists, term }: Props) {
                                 </div>
 
                                 {/* Name */}
-                                <p className="font-bold text-center">
+                                <p className="font-bold text-center ">
                                     {index + 1}. {item.name}
                                 </p>
-                            </div>
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
-            ) : (
-                <ol className="flex flex-wrap justify-evenly w-full ">
-                    {artists.map((item, index) => (
-                        <li
-                            key={`grid-${term}-${item.id}`}
-                            className="w-44 mb-4"
-                        >
-                            {/* Art */}
-                            <div className="mb-2 w-11/12 aspect-square rounded-full overflow-hidden relative bg-neutral-100 text-secondary flex justify-center items-center">
-                                {item.image ? (
-                                    <Image
-                                        src={item.image.url}
-                                        alt={`${item.name}`}
-                                        fill
-                                        sizes={'176px'}
-                                        style={{
-                                            objectFit: 'cover',
-                                            objectPosition: 'center',
-                                        }}
-                                    />
-                                ) : (
-                                    <Disc size={70} />
-                                )}
-                            </div>
-
-                            {/* Name */}
-                            <p className="font-bold text-center ">
-                                {index + 1}. {item.name}
-                            </p>
+                            </Link>
                         </li>
                     ))}
                 </ol>

@@ -8,6 +8,7 @@ import {
     TimeRangePlaceholder,
 } from '@/lib/types'
 import Dropdown from './Dropdown'
+import Genres from './Genres'
 import Tracks from './Tracks'
 import Artists from './Artists'
 
@@ -36,40 +37,9 @@ function Dashboard({ genres, tracks, artists }: Props) {
                 onClick={handleOnClick}
                 options={['shortTerm', 'mediumTerm', 'longTerm']}
             />
-            {/* Genres */}
-            <section className="mb-12">
-                <h2 className="font-bold text-2xl md:text-3xl">Top Genres</h2>
-                <p className="text-secondary font-medium text-sm">
-                    Your top generes{' '}
-                    {`${
-                        term === 'longTerm'
-                            ? ''
-                            : `from the past ${TimeRangePlaceholders[term]}`
-                    }`}
-                </p>
 
-                {Object.entries(genres[term]).length ? (
-                    <ol className="flex overflow-x-scroll space-x-3 h-max py-2.5">
-                        {Object.entries(genres[term]).map((item, index) => (
-                            <li
-                                key={`${term}-genre-${index}`}
-                                className="text-sm bg-neutral-100 flex space-x-1 py-2 px-4 rounded-full"
-                            >
-                                <span className="w-max">{item[0]}</span>
-                            </li>
-                        ))}
-                    </ol>
-                ) : (
-                    <p className="text-center text-sm font-semibold text-secondary py-2.5">
-                        Not enough data to complete this list
-                    </p>
-                )}
-            </section>
-
-            {/* Tracks */}
+            <Genres genres={genres[term]} term={term} />
             <Tracks tracks={tracks[term]} term={term} />
-
-            {/* Artists */}
             <Artists artists={artists[term]} term={term} />
         </>
     )

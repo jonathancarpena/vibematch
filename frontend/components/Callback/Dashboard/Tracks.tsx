@@ -6,6 +6,7 @@ import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import Image from 'next/image'
 import { Disc, Grid, ChevronLeft, ChevronRight } from 'react-feather'
+import Link from 'next/link'
 
 interface Props {
     tracks: SpotifyTrack[] | []
@@ -50,7 +51,7 @@ function Tracks({ tracks, term }: Props) {
     }, [swiperRef, isEnd, isBeginning])
 
     return (
-        <section className="mb-12">
+        <section className="mb-12 ">
             {/* Heading */}
             <div className="flex justify-between items-center mb-3 ">
                 <div>
@@ -113,9 +114,51 @@ function Tracks({ tracks, term }: Props) {
                             key={`${term}-${item.id}`}
                             className="max-w-44"
                         >
-                            <div className="w-full">
+                            <Link
+                                href={`https://open.spotify.com/track/${item.id}`}
+                                target="_blank"
+                            >
+                                <div className="w-full">
+                                    {/* Art */}
+                                    <div className="mb-2 w-44 h-44 aspect-square relative bg-neutral-100 text-secondary flex justify-center items-center">
+                                        {item.image ? (
+                                            <Image
+                                                src={item.image.url}
+                                                alt={`${item.name}`}
+                                                fill
+                                                sizes={'176px'}
+                                            />
+                                        ) : (
+                                            <Disc size={70} />
+                                        )}
+                                    </div>
+
+                                    {/* Title */}
+                                    <p className="font-bold ">
+                                        {index + 1}. {item.name}
+                                    </p>
+                                    {/* Artist */}
+                                    <span className="text-secondary text-sm block font-medium">
+                                        {item.artists[0].name}
+                                    </span>
+                                </div>
+                            </Link>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            ) : (
+                <ol className="flex flex-wrap justify-evenly md:justify-between w-full ">
+                    {tracks.map((item, index) => (
+                        <li
+                            key={`grid-${term}-${item.id}`}
+                            className="w-44 mb-2"
+                        >
+                            <Link
+                                href={`https://open.spotify.com/track/${item.id}`}
+                                target="_blank"
+                            >
                                 {/* Art */}
-                                <div className="mb-2 w-44 h-44 aspect-square relative bg-neutral-100 text-secondary flex justify-center items-center">
+                                <div className="mb-2 w-full aspect-square relative bg-neutral-100 text-secondary flex justify-center items-center">
                                     {item.image ? (
                                         <Image
                                             src={item.image.url}
@@ -136,39 +179,7 @@ function Tracks({ tracks, term }: Props) {
                                 <span className="text-secondary text-sm block font-medium">
                                     {item.artists[0].name}
                                 </span>
-                            </div>
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
-            ) : (
-                <ol className="flex flex-wrap justify-evenly  w-full ">
-                    {tracks.map((item, index) => (
-                        <li
-                            key={`grid-${term}-${item.id}`}
-                            className="w-44 mb-2"
-                        >
-                            {/* Art */}
-                            <div className="mb-2 w-full aspect-square relative bg-neutral-100 text-secondary flex justify-center items-center">
-                                {item.image ? (
-                                    <Image
-                                        src={item.image.url}
-                                        alt={`${item.name}`}
-                                        fill
-                                        sizes={'176px'}
-                                    />
-                                ) : (
-                                    <Disc size={70} />
-                                )}
-                            </div>
-
-                            {/* Title */}
-                            <p className="font-bold ">
-                                {index + 1}. {item.name}
-                            </p>
-                            {/* Artist */}
-                            <span className="text-secondary text-sm block font-medium">
-                                {item.artists[0].name}
-                            </span>
+                            </Link>
                         </li>
                     ))}
                 </ol>
