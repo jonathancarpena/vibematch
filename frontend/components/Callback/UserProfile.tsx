@@ -47,7 +47,7 @@ function UserProfile({ profile, timestamp }: Props) {
 
                     <Link href={profile.external_urls.spotify} target="_blank">
                         <span className="  hover:text-accent transition duration-150 text-center mb-1 inline-block">
-                            <ExternalLink size={24} />
+                            <ExternalLink size={20} />
                         </span>
                     </Link>
                     <span className="text-xs">
