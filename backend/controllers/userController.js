@@ -1,7 +1,10 @@
 import User from '../models/User.js'
 import ENDPOINTS from '../lib/endpoints.js'
 
-export const getUsers = async (req, res) => {}
+export const getUsers = async (req, res) => {
+    const allUsers = await User.find()
+    return res.status(201).json(allUsers)
+}
 
 export const createUser = async (req, res) => {
     let code = await req.body.code
@@ -110,9 +113,12 @@ export const createUser = async (req, res) => {
 
         function filterTrackResponse(tracks) {
             return tracks.map((item) => ({
-                artists: item.artists,
+                artists: item.artists.map((temp) => ({
+                    ...temp,
+                    id: `${token}-${item.id}`,
+                })),
                 image: item.album.images[0],
-                id: item.id,
+                id: `${token}-${item.id}`,
                 name: item.name,
                 popularity: item.popularity,
             }))
@@ -173,7 +179,7 @@ export const createUser = async (req, res) => {
         function filterArtistResponse(artists) {
             return artists.map((item) => ({
                 genres: item.genres,
-                id: item.id,
+                id: `${token}-${item.id}`,
                 image: item.images[0],
                 name: item.name,
                 popularity: item.popularity,
@@ -295,19 +301,6 @@ export const createUser = async (req, res) => {
     try {
         const { data, error } = await fetchData()
 
-        const newUser = new User({
-            spotifyId: data.profile.id,
-            profile: {
-                display_name: data.profile.display_name,
-                id: data.profile.id,
-                images: data.profile.images,
-            },
-            tracks: data.tracks,
-            artists: data.artists,
-            genres: data.genres,
-            timestamp: data.timestamp,
-        })
-
         const existingUser = await User.findOne({ spotifyId: data.profile.id })
 
         if (existingUser) {
@@ -318,11 +311,34 @@ export const createUser = async (req, res) => {
             existingUser.timestamp = data.timestamp
             await existingUser.save()
         } else {
-            await newUser.save()
+            const newUser = new User({
+                spotifyId: data.profile.id,
+                profile: {
+                    display_name: data.profile.display_name,
+                    id: data.profile.id,
+                    images: data.profile.images,
+                },
+                tracks: data.tracks,
+                artists: data.artists,
+                genres: data.genres,
+                timestamp: data.timestamp,
+            })
+
+            const res = await newUser.save()
         }
 
         res.status(201).json({ data, error })
     } catch (error) {
+        console.error('Error details:', error)
         res.status(400).json({ message: error.message })
     }
 }
+
+// Error details:
+//     MongoServerError:
+//         E11000 duplicate key error collection:
+//             test.users
+//                 index: artists.shortTerm.id_1
+//                     dup key: {
+//                         artists.shortTerm.id: "0QitJHI0ZwMa5F9TR6EYSl"
+//                     }

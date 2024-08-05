@@ -183,3 +183,11 @@ export type TimeRanges = 'shortTerm' | 'mediumTerm' | 'longTerm'
 export interface TimeRangePlaceholder {
     [key: string]: string
 }
+
+export interface VibeMatchUser {
+    tracks: TopTracks
+    artists: TopArtists
+    genres: TopGenre
+    profile: UserProfile
+    timestamp: Date
+}
