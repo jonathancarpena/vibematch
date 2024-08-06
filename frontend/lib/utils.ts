@@ -5,3 +5,27 @@ export function formatDate(date: Date): string {
 
     return `${year}-${month}-${day}`
 }
+
+export function formatDateToMMDYYYY(dateString: string): string {
+    const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ]
+
+    const [year, month, day] = dateString.split('-').map(Number)
+
+    // Adjust for zero-based month index
+    const monthName = months[month - 1]
+
+    return `${monthName} ${day}, ${year}`
+}

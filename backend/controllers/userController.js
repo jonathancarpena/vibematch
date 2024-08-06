@@ -1,5 +1,6 @@
 import User from '../models/User.js'
 import ENDPOINTS from '../lib/endpoints.js'
+import { timeAgo } from '../lib/utils.js'
 
 export const getUsers = async (req, res) => {
     const allUsers = await User.find()
@@ -30,17 +31,20 @@ export const createUser = async (req, res) => {
         const profile = await fetchProfile(access_token)
         const tracks = await fetchTopTracks(access_token)
         const artists = await fetchTopArtists(access_token)
+        const recentlyPlayed = await fetchRecentlyPlayed(access_token)
         const genres = fetchTopGenresByArtist(artists.data)
 
         fetchErrors = profile.error
         fetchErrors = tracks.error
         fetchErrors = artists.error
+        fetchErrors = recentlyPlayed.error
 
         return {
             data: {
                 profile: profile.data,
                 tracks: tracks.data,
                 artists: artists.data,
+                recentlyPlayed: recentlyPlayed.data,
                 genres,
                 timestamp: new Date(),
             },
@@ -92,6 +96,7 @@ export const createUser = async (req, res) => {
         if (result.hasOwnProperty('error')) {
             return { data, error: result.error.status }
         }
+
         return { data: result, error }
     }
 
@@ -115,10 +120,10 @@ export const createUser = async (req, res) => {
             return tracks.map((item) => ({
                 artists: item.artists.map((temp) => ({
                     ...temp,
-                    id: `${token}-${item.id}`,
+                    id: `${token}-VibeMatch-${item.id}`,
                 })),
                 image: item.album.images[0],
-                id: `${token}-${item.id}`,
+                id: `${token}-VibeMatch-${item.id}`,
                 name: item.name,
                 popularity: item.popularity,
             }))
@@ -179,7 +184,7 @@ export const createUser = async (req, res) => {
         function filterArtistResponse(artists) {
             return artists.map((item) => ({
                 genres: item.genres,
-                id: `${token}-${item.id}`,
+                id: `${token}-VibeMatch-${item.id}`,
                 image: item.images[0],
                 name: item.name,
                 popularity: item.popularity,
@@ -232,31 +237,32 @@ export const createUser = async (req, res) => {
         if (artists.hasOwnProperty('shortTerm')) {
             artists.shortTerm.forEach((artist) => {
                 if (artist.genres.length) {
-                    const category = artist.genres[0]
-                    counter['shortTerm'][category] =
-                        (counter['shortTerm'][category] || 0) + 1
+                    artist.genres.forEach((genre) => {
+                        counter['shortTerm'][genre] =
+                            (counter['shortTerm'][genre] || 0) + 1
+                    })
                 }
             })
         }
 
         if (artists.hasOwnProperty('mediumTerm')) {
-            artists.mediumTerm.forEach((artist) => {
+            artists.shortTerm.forEach((artist) => {
                 if (artist.genres.length) {
-                    const category = artist.genres[0]
-
-                    counter['mediumTerm'][category] =
-                        (counter['mediumTerm'][category] || 0) + 1
+                    artist.genres.forEach((genre) => {
+                        counter['mediumTerm'][genre] =
+                            (counter['mediumTerm'][genre] || 0) + 1
+                    })
                 }
             })
         }
 
         if (artists.hasOwnProperty('longTerm')) {
-            artists.longTerm.forEach((artist) => {
+            artists.shortTerm.forEach((artist) => {
                 if (artist.genres.length) {
-                    const category = artist.genres[0]
-
-                    counter['longTerm'][category] =
-                        (counter['longTerm'][category] || 0) + 1
+                    artist.genres.forEach((genre) => {
+                        counter['longTerm'][genre] =
+                            (counter['longTerm'][genre] || 0) + 1
+                    })
                 }
             })
         }
@@ -298,6 +304,44 @@ export const createUser = async (req, res) => {
         }
     }
 
+    async function fetchRecentlyPlayed(token) {
+        const headers = {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` },
+        }
+
+        let data = {}
+        let error = null
+
+        const response = await (
+            await fetch(ENDPOINTS.player.recentlyPlayed, headers)
+        ).json()
+
+        if (response.hasOwnProperty('error')) {
+            return { data, error: response.error.status }
+        }
+
+        if (response.items) {
+            response.items.forEach((item, index) => {
+                let day = item.played_at.split('T')[0]
+                let track = {
+                    artist: item.track.album.artists[0].name,
+                    id: `${token}-INDEX-${index}-VibeMatch-${item.track.id}`,
+                    image: item.track.album.images[0],
+                    name: item.track.name,
+                    timePlayed: timeAgo(item.played_at),
+                }
+                if (data.hasOwnProperty(day)) {
+                    data[day] = [...data[day], track]
+                } else {
+                    data[day] = [track]
+                }
+            })
+        }
+
+        return { data, error }
+    }
+
     try {
         const { data, error } = await fetchData()
 
@@ -308,26 +352,23 @@ export const createUser = async (req, res) => {
             existingUser.tracks = data.tracks
             existingUser.artists = data.artists
             existingUser.genres = data.genres
+            existingUser.recentlyPlayed = data.recentlyPlayed
             existingUser.timestamp = data.timestamp
-            await existingUser.save()
+            const response = await existingUser.save()
+            res.status(201).json({ response, error })
         } else {
             const newUser = new User({
                 spotifyId: data.profile.id,
-                profile: {
-                    display_name: data.profile.display_name,
-                    id: data.profile.id,
-                    images: data.profile.images,
-                },
+                profile: data.profile,
                 tracks: data.tracks,
                 artists: data.artists,
                 genres: data.genres,
+                recentlyPlayed: data.recentlyPlayed,
                 timestamp: data.timestamp,
             })
-
-            const res = await newUser.save()
+            const response = await newUser.save()
+            res.status(201).json({ response, error })
         }
-
-        res.status(201).json({ data, error })
     } catch (error) {
         console.error('Error details:', error)
         res.status(400).json({ message: error.message })

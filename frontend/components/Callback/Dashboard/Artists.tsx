@@ -72,8 +72,10 @@ function Artists({ artists, term }: Props) {
                     <button
                         onClick={() => setGridView(!gridView)}
                         className={`${
-                            !gridView ? ' ' : 'bg-black text-white '
-                        } bg-neutral-100 p-2 rounded-full outine-none active:scale-90 active:ring-4 active:ring-accentSecondary transition-all duration-200 `}
+                            !gridView
+                                ? ' bg-neutral-100'
+                                : 'bg-black text-white '
+                        }  p-2 rounded-full outine-none active:scale-90 active:ring-4 active:ring-accentSecondary transition-all duration-200 `}
                     >
                         <Grid size={20} />
                     </button>
@@ -115,7 +117,9 @@ function Artists({ artists, term }: Props) {
                             className="max-w-44"
                         >
                             <Link
-                                href={`https://open.spotify.com/artist/${item.id}`}
+                                href={`https://open.spotify.com/artist/${
+                                    item.id.split('-VibeMatch-')[1]
+                                }`}
                                 target="_blank"
                             >
                                 <div className="w-full">
@@ -154,7 +158,9 @@ function Artists({ artists, term }: Props) {
                             className="w-44 mb-4"
                         >
                             <Link
-                                href={`https://open.spotify.com/artist/${item.id}`}
+                                href={`https://open.spotify.com/artist/${
+                                    item.id.split('-VibeMatch-')[1]
+                                }`}
                                 target="_blank"
                             >
                                 {/* Art */}

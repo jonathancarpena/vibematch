@@ -40,6 +40,9 @@ const ProfileSchema = new Schema({
     display_name: { type: String, required: true },
     id: { type: String, required: true },
     images: [ImageSchema],
+    email: { type: String, required: true },
+    external_urls: { type: Object, unique: false },
+    followers: { type: Object, unique: false },
 })
 
 const UserTracksSchema = new Schema({
@@ -54,6 +57,14 @@ const UserArtistsSchema = new Schema({
     longTerm: { type: [ArtistSchema], required: false, unique: false },
 })
 
+const RecentlyPlayedTrackSchema = new Schema({
+    artist: { type: String, required: true },
+    id: { type: String, required: false, unique: false },
+    image: { type: ImageSchema, required: false, unique: false },
+    name: { type: String, required: true },
+    timePlayed: { type: String, required: true },
+})
+
 const UserGenreSchema = new Schema({
     shortTerm: Object,
     mediumTerm: Object,
@@ -65,10 +76,10 @@ const UserSchema = new Schema({
     profile: ProfileSchema,
     tracks: { type: UserTracksSchema, unique: false },
     artists: { type: UserArtistsSchema, unique: false },
+    recentlyPlayed: { type: Object, unique: false },
     genres: UserGenreSchema,
     timestamp: { type: Date, required: true },
 })
 
-// Create the User model
 const User = model('User', UserSchema)
 export default User

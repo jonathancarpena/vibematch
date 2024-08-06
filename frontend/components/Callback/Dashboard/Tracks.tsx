@@ -72,8 +72,10 @@ function Tracks({ tracks, term }: Props) {
                     <button
                         onClick={() => setGridView(!gridView)}
                         className={`${
-                            !gridView ? ' ' : 'bg-black text-white '
-                        } bg-neutral-100 p-2 rounded-full outine-none active:scale-90 active:ring-4 active:ring-accentSecondary transition-all duration-200 `}
+                            !gridView
+                                ? 'bg-neutral-100 '
+                                : 'bg-black text-white '
+                        }  p-2 rounded-full outine-none active:scale-90 active:ring-4 active:ring-accentSecondary transition-all duration-200 `}
                     >
                         <Grid size={20} />
                     </button>
@@ -115,10 +117,12 @@ function Tracks({ tracks, term }: Props) {
                             className="max-w-44"
                         >
                             <Link
-                                href={`https://open.spotify.com/track/${item.id}`}
+                                href={`https://open.spotify.com/track/${
+                                    item.id.split('-VibeMatch-')[1]
+                                }`}
                                 target="_blank"
                             >
-                                <div className="w-full">
+                                <div className="w-full leading-tight">
                                     {/* Art */}
                                     <div className="mb-2 w-44 h-44 aspect-square relative bg-neutral-100 text-secondary flex justify-center items-center">
                                         {item.image ? (
@@ -147,14 +151,16 @@ function Tracks({ tracks, term }: Props) {
                     ))}
                 </Swiper>
             ) : (
-                <ol className="flex flex-wrap justify-evenly md:justify-between w-full ">
+                <ol className="flex flex-wrap justify-evenly md:justify-between w-full leading-tight">
                     {tracks.map((item, index) => (
                         <li
                             key={`grid-${term}-${item.id}`}
                             className="w-44 mb-2"
                         >
                             <Link
-                                href={`https://open.spotify.com/track/${item.id}`}
+                                href={`https://open.spotify.com/track/${
+                                    item.id.split('-VibeMatch-')[1]
+                                }`}
                                 target="_blank"
                             >
                                 {/* Art */}

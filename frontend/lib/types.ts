@@ -165,17 +165,16 @@ export interface TopGenre {
     longTerm: Genre | {}
 }
 
-export interface PlayHistory {
-    track: SpotifyTrack
-    played_at: string
-    context: {
-        type: 'artist' | 'playlist' | 'album' | 'show'
-        href: string
-        external_urls: {
-            spotify: string
-        }
-        uri: string
-    }
+export interface RecentlyPlayedTrack {
+    artist: String
+    id: String
+    image: Image
+    name: String
+    timePlayed: String
+}
+
+export interface RecentlyPlayed {
+    [key: string]: [RecentlyPlayedTrack]
 }
 
 export type TabOptions = 'tracks' | 'artists' | 'genre' | 'playlist'
@@ -188,6 +187,8 @@ export interface VibeMatchUser {
     tracks: TopTracks
     artists: TopArtists
     genres: TopGenre
+    recentlyPlayed: RecentlyPlayed
     profile: UserProfile
     timestamp: Date
+    _id: String
 }

@@ -19,7 +19,8 @@ const ENDPOINTS = {
             'https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50',
     },
     player: {
-        recentlyPlayed: 'https://api.spotify.com/v1/me/player/recently-played',
+        recentlyPlayed:
+            'https://api.spotify.com/v1/me/player/recently-played?limit=50',
     },
 }
 

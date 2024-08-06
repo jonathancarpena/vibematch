@@ -1,4 +1,4 @@
-import { Genre, TopGenre } from '@/lib/types'
+import { Genre } from '@/lib/types'
 import React from 'react'
 import { TimeRangePlaceholders } from '.'
 

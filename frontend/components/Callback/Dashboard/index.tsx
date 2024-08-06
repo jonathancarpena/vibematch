@@ -6,16 +6,19 @@ import {
     TopGenre,
     TimeRanges,
     TimeRangePlaceholder,
+    RecentlyPlayed as PlayHistory,
 } from '@/lib/types'
 import Dropdown from './Dropdown'
 import Genres from './Genres'
 import Tracks from './Tracks'
 import Artists from './Artists'
+import RecentlyPlayed from './RecentlyPlayed'
 
 interface Props {
     tracks: TopTracks
     artists: TopArtists
     genres: TopGenre
+    recentlyPlayed: PlayHistory
 }
 
 export const TimeRangePlaceholders: TimeRangePlaceholder = {
@@ -23,7 +26,7 @@ export const TimeRangePlaceholders: TimeRangePlaceholder = {
     mediumTerm: '6 months',
     longTerm: 'lifetime',
 }
-function Dashboard({ genres, tracks, artists }: Props) {
+function Dashboard({ genres, tracks, artists, recentlyPlayed }: Props) {
     const [term, setTerm] = useState<TimeRanges>('shortTerm')
 
     const handleOnClick = (value: TimeRanges) => setTerm(value)
@@ -41,6 +44,7 @@ function Dashboard({ genres, tracks, artists }: Props) {
             <Genres genres={genres[term]} term={term} />
             <Tracks tracks={tracks[term]} term={term} />
             <Artists artists={artists[term]} term={term} />
+            <RecentlyPlayed tracks={recentlyPlayed} />
         </>
     )
 }

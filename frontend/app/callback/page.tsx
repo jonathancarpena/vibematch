@@ -7,18 +7,13 @@ import Container from '@/components/Layout/Container'
 import Dashboard from '@/components/Callback/Dashboard'
 import UserProfile from '@/components/Callback/UserProfile'
 
-interface DataResponse {
-    data: VibeMatchUser
-    error: string
-}
-
 interface Props {
     searchParams: {
         code: string
     }
 }
 
-async function getData(code: string): Promise<DataResponse> {
+async function getData(code: string): Promise<VibeMatchUser> {
     const BASE = process.env.NEXT_PUBLIC_BASE_URL
 
     const res = await fetch(`${BASE}/api/login`, {
@@ -26,13 +21,16 @@ async function getData(code: string): Promise<DataResponse> {
         body: JSON.stringify(code),
     })
 
-    const { data, error } = await res.json()
+    const {
+        data: { response },
+        error,
+    } = await res.json()
     if (error === 401) {
         redirect(ENDPOINTS.login)
     } else if (error > 400) {
         redirect('/')
     }
-    return data
+    return response
 }
 
 async function getUsers() {
@@ -48,17 +46,22 @@ async function getUsers() {
 }
 
 export default async function Home({ searchParams }: Props) {
-    const {
-        data: { profile, tracks, genres, artists, timestamp },
-    } = await getData(searchParams.code)
-    // const res = await getUsers()
+    const { profile, tracks, genres, artists, timestamp, recentlyPlayed } =
+        await getData(searchParams.code)
+
+    const res = await getUsers()
 
     return (
         <>
-            {/* <Navbar users={res.data} /> */}
+            <Navbar users={res.data} />
             <Container>
                 <UserProfile profile={profile} timestamp={timestamp} />
-                <Dashboard tracks={tracks} genres={genres} artists={artists} />
+                <Dashboard
+                    tracks={tracks}
+                    genres={genres}
+                    artists={artists}
+                    recentlyPlayed={recentlyPlayed}
+                />
             </Container>
         </>
     )
