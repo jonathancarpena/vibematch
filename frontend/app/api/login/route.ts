@@ -8,18 +8,26 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
         })
         const BASE = process.env.NEXT_PUBLIC_BACKEND_BASE_URL
+        const URL = `${BASE}/users`
 
-        const res = await fetch(`${BASE}/users`, {
+        const loginRes = await fetch(URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ code }),
         })
+        const { response, error } = await loginRes.json()
 
-        const data = await res.json()
-
-        return NextResponse.json({ data, ok: true })
+        const allUsersRes = await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        let allUsers = await allUsersRes.json()
+        allUsers = allUsers.filter((item: any) => item._id !== response._id)
+        return NextResponse.json({ data: { response, allUsers }, ok: true })
     } else {
         return NextResponse.json({ ok: false })
     }

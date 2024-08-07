@@ -58,7 +58,7 @@ function RecentlyPlayed({ tracks }: Props) {
                                             </div>
                                         </div>
 
-                                        <span className="text-sm font-medium text-secondary w-max text-right">
+                                        <span className="text-xs font-medium text-secondary w-max text-right">
                                             {track.timePlayed}
                                         </span>
                                     </Link>

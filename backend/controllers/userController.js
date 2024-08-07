@@ -3,8 +3,16 @@ import ENDPOINTS from '../lib/endpoints.js'
 import { timeAgo } from '../lib/utils.js'
 
 export const getUsers = async (req, res) => {
-    const allUsers = await User.find()
-    return res.status(201).json(allUsers)
+    try {
+        const allUsers = await User.find()
+
+        return res.status(200).json([...allUsers])
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: 'Server Error',
+        })
+    }
 }
 
 export const createUser = async (req, res) => {
@@ -246,7 +254,7 @@ export const createUser = async (req, res) => {
         }
 
         if (artists.hasOwnProperty('mediumTerm')) {
-            artists.shortTerm.forEach((artist) => {
+            artists.mediumTerm.forEach((artist) => {
                 if (artist.genres.length) {
                     artist.genres.forEach((genre) => {
                         counter['mediumTerm'][genre] =
@@ -257,7 +265,7 @@ export const createUser = async (req, res) => {
         }
 
         if (artists.hasOwnProperty('longTerm')) {
-            artists.shortTerm.forEach((artist) => {
+            artists.longTerm.forEach((artist) => {
                 if (artist.genres.length) {
                     artist.genres.forEach((genre) => {
                         counter['longTerm'][genre] =
